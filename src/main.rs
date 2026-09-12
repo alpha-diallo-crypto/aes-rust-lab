@@ -1,4 +1,6 @@
 mod aes_core;
+mod mods;
+
 
 fn main() {
     println!("=== gf256 : arithmétique de base dans GF(2^8) ===");
@@ -67,6 +69,31 @@ fn main() {
     println!("sbox(0x67) = 0x{:02x}", aes_core::sbox::sbox(byte));
     println!();
 
+    println!("=== inv_sbox : reconstruction indépendante de  INV_SBOX ===");
+    let byte: u8 = 0x67;
+    println!("inv_sbox(0x67) = 0x{:02x}", aes_core::inv_sbox::inv_sbox(byte));
+    println!();
+    println!("=== transformations inverses : vérification round-trip ===");
+    let demo_input: [u8; 16] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+    let mut round_trip_state = aes_core::state::State::from_bytes(demo_input);
+
+    println!("-- état initial --");
+    round_trip_state.print();
+
+    round_trip_state.sub_bytes();
+    round_trip_state.shift_rows();
+    round_trip_state.mix_columns();
+    println!("-- après sub_bytes, shift_rows, mix_columns --");
+    round_trip_state.print();
+
+    round_trip_state.inv_mix_columns();
+    round_trip_state.inv_shift_rows();
+    round_trip_state.inv_sub_bytes();
+    println!("-- après inv_mix_columns, inv_shift_rows, inv_sub_bytes --");
+    round_trip_state.print();
+
+    println!("Résultat identique à l'état initial : {}", round_trip_state.to_bytes() == demo_input);
+
     println!("=== cipher : AES-128 complet, vecteur de référence FIPS-197 ===");
     let key: [u8; 16] = [
         0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e,
@@ -76,10 +103,20 @@ fn main() {
         0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee,
         0xff,
     ];
-
+    // Chiffre le bloc avec AES-128 en utilisant la clé fournie.
     let ciphertext = aes_core::cipher::encrypt(plaintext, key);
 
     println!("plaintext  = {:02x?}", plaintext);
     println!("key        = {:02x?}", key);
     println!("ciphertext = {:02x?}", ciphertext);
+    println!("=== decrypt : AES-128 complet, vecteur de référence FIPS-197 ===");
+    // Déchiffre le bloc et vérifie que le texte initial est retrouvé.
+    let decrypted = aes_core::decrypt::decrypt(ciphertext, key);
+    println!("ciphertext  = {:02x?}", ciphertext);
+    println!("key        = {:02x?}", key);
+    println!("decrypted = {:02x?}", decrypted );
+    println!("Résultat dechiffrement apres le chifrement : {}", decrypted  == plaintext);
+
+
+    
 }
