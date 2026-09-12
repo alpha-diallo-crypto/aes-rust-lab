@@ -5,3 +5,6 @@ pub mod key_expansion;
 pub mod sbox;
 pub mod state;
 pub mod transformations;
+pub mod inv_sbox;
+pub mod inv_transformations;
+pub mod decrypt;
