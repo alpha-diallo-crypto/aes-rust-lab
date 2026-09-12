@@ -3,7 +3,7 @@ use super::state::State;
 
 /// Assemble la clé de round numéro `round` à partir des 44 mots
 /// générés par key_expansion, en un State prêt pour add_round_key.
-fn round_key(round_keys: &[[u8; 4]; 44], round: usize) -> State {
+pub fn round_key(round_keys: &[[u8; 4]; 44], round: usize) -> State {
     let w0 = round_keys[4 * round];
     let w1 = round_keys[4 * round + 1];
     let w2 = round_keys[4 * round + 2];
