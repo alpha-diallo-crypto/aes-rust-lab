@@ -1,4 +1,6 @@
+
 mod aes_core;
+mod mods;
 
 
 
@@ -116,6 +118,23 @@ fn main() {
     println!("key        = {:02x?}", key);
     println!("decrypted = {:02x?}", decrypted );
     println!("Résultat dechiffrement apres le chifrement : {}", decrypted  == plaintext);
+
+    println!("=== CBC : chiffrement et déchiffrement par blocs chaînés ===");
+    let cbc_key: [u8; 16] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+    let cbc_iv: [u8; 16] = [0; 16];
+    let cbc_plaintext = b"je m'appelle alpha et je suis etudiant en M2 cryptographie a la recherche dun stage de fin d'etude !";
+
+    let cbc_ciphertext = mods::cbc::cbc_encrypt(cbc_plaintext, cbc_iv, cbc_key);
+    println!("plaintext  = {:?}", String::from_utf8_lossy(cbc_plaintext));
+    println!("ciphertext = {:02x?}", cbc_ciphertext);
+
+    match mods::cbc::cbc_decrypt(&cbc_ciphertext, cbc_iv, cbc_key) {
+        Ok(decrypted) => {
+            println!("plaintext retrouvé = {:?}", String::from_utf8_lossy(&decrypted));
+            println!("Déchiffrement correct : {}", decrypted == cbc_plaintext);
+        }
+        Err(e) => println!("Erreur de déchiffrement : {}", e),
+    }
 
 
     
